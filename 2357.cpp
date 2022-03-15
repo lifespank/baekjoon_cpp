@@ -31,7 +31,7 @@ int main() {
         maxTable[0][i] = arr[i];
     }
     for (int k = 1; k <= maxLog; k++) {
-        for (int i = 0; i < N; i++) {
+        for (int i = 0; i + (1 << (k - 1)) < N; i++) {
             minTable[k][i] = min(minTable[k - 1][i], minTable[k - 1][i + (1 << (k - 1))]);
             maxTable[k][i] = max(maxTable[k - 1][i], maxTable[k - 1][i + (1 << (k - 1))]);
         }
