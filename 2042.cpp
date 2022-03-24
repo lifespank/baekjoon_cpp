@@ -43,7 +43,7 @@ int main() {
     cin >> N >> M >> K;
     vector<long long> arr(N);
     int h = static_cast<int>(ceil(log2(N)));
-    int treeSize = (1 << (h + 1));
+    int treeSize = 1 << (h + 1);
     vector<long long> tree(treeSize);
     for (int i = 0; i < N; i++) {
         cin >> arr[i];
