@@ -1,93 +1,84 @@
 #include <iostream>
-#include <bits/stdc++.h>
+#include <vector>
 #include <queue>
-#include <memory.h>
-#include <cmath>
 
 using namespace std;
 
-int N, L, R;
-int board[51][51];
-int tempBoard[51][51];
-bool isVisited[51][51];
-int dx[4] = {0, 0, 1, -1};
-int dy[4] = {1, -1, 0, 0};
+int dx[4] = {1, -1, 0, 0};
+int dy[4] = {0, 0, 1, -1};
 
-bool isInBoard(int x, int y) {
+bool isInRange(int thisPeople, int otherPeople, int L, int R) {
+    int diff = abs(thisPeople - otherPeople);
+    return L <= diff && diff <= R;
+}
+
+bool isInBoard(int x, int y, int N) {
     return x >= 0 && x < N && y >= 0 && y < N;
 }
 
-bool isOpen(int hereX, int hereY, int nX, int nY) {
-    int diff = abs(board[hereX][hereY] - board[nX][nY]);
-    if(L <= diff && diff <= R) {
-        return true;
-    }
-    return false;
-}
-
-bool bfs(int x, int y) {
-    vector<vector<bool>> isVisitedHere(N, (vector<bool>(N, false)));
-    int countries = 1;
-    int people = board[x][y];
-    isVisited[x][y] = true;
+bool bfs(vector<vector<int>> &board, vector<vector<bool>> &visited, int startX, int startY, int L, int R) {
     queue<pair<int, int>> q;
-    queue<pair<int, int>> visitedCountries;
-    q.push({x, y});
-    while(!q.empty()) {
+    queue<pair<int, int>> allies;
+    int totalPeople = board[startX][startY];
+    int allyCount = 1;
+    visited[startX][startY] = true;
+    q.push({startX, startY});
+    allies.push({startX, startY});
+    while (!q.empty()) {
         int hereX = q.front().first;
         int hereY = q.front().second;
-        visitedCountries.push({hereX, hereY});
         q.pop();
-        for(int i = 0; i < 4; i++) {
+        for (int i = 0; i < 4; i++) {
             int nX = hereX + dx[i];
             int nY = hereY + dy[i];
-            if(isInBoard(nX, nY) && !isVisited[nX][nY] && isOpen(hereX, hereY, nX, nY)) {
-                isVisited[nX][nY] = true;
+            if (isInBoard(nX, nY, board.size()) && !visited[nX][nY] && isInRange(board[hereX][hereY], board[nX][nY], L, R)) {
                 q.push({nX, nY});
-                countries++;
-                people += board[nX][nY];
+                allies.push({nX, nY});
+                visited[nX][nY] = true;
+                allyCount++;
+                totalPeople += board[nX][nY];
             }
         }
     }
-    while(!visitedCountries.empty()) {
-        tempBoard[visitedCountries.front().first][visitedCountries.front().second] = people / countries;
-        visitedCountries.pop();
-    }
-    if(countries == 1) {
-        return true;
-    } else {
+    if (allyCount == 1) {
         return false;
     }
+    int resultPeople = totalPeople / allyCount;
+    while (!allies.empty()) {
+        int hereX = allies.front().first;
+        int hereY = allies.front().second;
+        allies.pop();
+        board[hereX][hereY] = resultPeople;
+    }
+    return true;
 }
 
 int main() {
     ios_base::sync_with_stdio(false);
     cin.tie(NULL);
+    cout.tie(NULL);
+    int N, L, R;
     cin >> N >> L >> R;
-    for(int i = 0; i < N; i++) {
-        for(int j = 0; j < N; j++) {
+    vector<vector<int>> board(N, vector<int>(N));
+    for (int i = 0; i < N; i++) {
+        for (int j = 0; j < N; j++) {
             cin >> board[i][j];
         }
     }
-    int days = -1;
-    int single;
-    do {
-        single = 0;
-        for(int i = 0; i < N; i++) {
-            for(int j = 0; j < N; j++) {
-                if(!isVisited[i][j] && bfs(i, j)) {
-                    single++;
+    int moveCount = -1;
+    bool isMoved = true;
+    while (isMoved) {
+        vector<vector<bool>> visited(N, vector<bool>(N, false));
+        isMoved = false;
+        for (int i = 0; i < N; i++) {
+            for (int j = 0; j < N; j++) {
+                if (!visited[i][j] && bfs(board, visited, i, j, L, R)) {
+                    isMoved = true;
                 }
             }
         }
-        memset(isVisited, 0, sizeof(isVisited));
-        for(int i = 0; i < N; i++) {
-            for(int j = 0; j < N; j++) {
-                board[i][j] = tempBoard[i][j];
-            }
-        }
-        days++;
-    } while(single < N * N);
-    cout << days;
+        moveCount++;
+    }
+    cout << moveCount;
     return 0;
 }
