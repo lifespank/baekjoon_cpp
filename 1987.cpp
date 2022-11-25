@@ -1,4 +1,4 @@
-#include <iostream>
+#include <cstdio>
 #include <algorithm>
 
 using namespace std;
@@ -9,9 +9,6 @@ int dx[4] = {0, 0, 1, -1};
 int dy[4] = {1, -1, 0, 0};
 int visit = 0;
 int maxVisit = 0;
-void consumeLine() {
-    while(getchar() != '\n') {}
-}
 
 void dfs(int startX, int startY, int depth) {
     maxVisit = max(maxVisit, depth);
@@ -28,16 +25,16 @@ void dfs(int startX, int startY, int depth) {
 }
 
 int main() {
-    cin >> R >> C;
-    consumeLine();
+    scanf("%d %d", &R, &C);
+    getchar();
     for(int i = 0; i < R; i++) {
         for(int j = 0; j < C; j++) {
             board[i][j] = getchar();
         }
-        consumeLine();
+        getchar();
     }
     visit = visit | 1 << (int)(board[0][0] - 'A');
     dfs(0, 0, 1);
-    cout << maxVisit;
+    printf("%d", maxVisit);
     return 0;
 }
